@@ -63,7 +63,7 @@ pub struct EchoExecutor<T>(PhantomData<T>);
 
 #[async_trait::async_trait]
 impl<T: Debug + Send + Sync> Executor<T> for EchoExecutor<T> {
-    async fn execute(&self, action: T) -> eyre::Result<()> {
+    async fn execute(&self, action: T) -> anyhow::Result<()> {
         println!("action: {:?}", action);
         Ok(())
     }

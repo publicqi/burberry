@@ -3,8 +3,8 @@ use alloy::{
     primitives::{keccak256, Bytes},
     providers::Provider,
 };
+use anyhow::Result;
 use async_trait::async_trait;
-use eyre::Result;
 use std::sync::Arc;
 
 use crate::types::Executor;

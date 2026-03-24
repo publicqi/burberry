@@ -8,7 +8,7 @@ impl<A: Send + Sync + 'static> Executor<A> for Dummy {
         "Dummy"
     }
 
-    async fn execute(&self, action: A) -> eyre::Result<()> {
+    async fn execute(&self, action: A) -> anyhow::Result<()> {
         let _ = action;
 
         Ok(())

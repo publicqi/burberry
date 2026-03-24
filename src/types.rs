@@ -1,7 +1,7 @@
 use std::{pin::Pin, sync::Arc};
 
+use anyhow::Result;
 use async_trait::async_trait;
-use eyre::Result;
 use futures::{Stream, StreamExt};
 
 pub type CollectorStream<'a, E> = Pin<Box<dyn Stream<Item = E> + Send + 'a>>;

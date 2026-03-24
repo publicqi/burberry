@@ -106,7 +106,7 @@ impl Executor<TransactionRequest> for TransactionSender {
         "TransactionSender"
     }
 
-    async fn execute(&self, action: TransactionRequest) -> eyre::Result<()> {
+    async fn execute(&self, action: TransactionRequest) -> anyhow::Result<()> {
         let mut action = action;
 
         let account = match action.from {

@@ -4,7 +4,7 @@ use crate::{
     action_submitter::ActionChannelSubmitter,
     types::{Collector, Executor, Strategy},
 };
-use eyre::Context;
+use anyhow::Context as _;
 use futures::StreamExt;
 use tokio::{
     sync::broadcast::{self, error::RecvError, Sender},
@@ -141,7 +141,7 @@ where
             strategy
                 .sync_state(action_submitter.clone())
                 .await
-                .wrap_err("fail to sync state")?;
+                .context("fail to sync state")?;
 
             set.spawn(async move {
                 debug!(name = strategy.name(), "starting strategy... ");

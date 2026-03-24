@@ -19,7 +19,7 @@ impl Collector<Instant> for IntervalCollector {
         "IntervalCollector"
     }
 
-    async fn get_event_stream(&self) -> eyre::Result<CollectorStream<'_, Instant>> {
+    async fn get_event_stream(&self) -> anyhow::Result<CollectorStream<'_, Instant>> {
         let stream = async_stream::stream! {
             loop {
                 tokio::time::sleep(self.interval).await;

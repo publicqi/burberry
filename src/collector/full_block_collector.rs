@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use alloy::{providers::Provider,  rpc::types::eth::Block};
+use alloy::{providers::Provider, rpc::types::eth::Block};
 use async_trait::async_trait;
 use futures::StreamExt;
 use tracing::{error, warn};
@@ -34,7 +34,7 @@ impl Collector<Block> for FullBlockCollector {
         "FullBlockCollector"
     }
 
-    async fn get_event_stream(&self) -> eyre::Result<CollectorStream<'_, Block>> {
+    async fn get_event_stream(&self) -> anyhow::Result<CollectorStream<'_, Block>> {
         let mut stream = self.provider.subscribe_blocks().await?.into_stream();
 
         let mut attempts = 0;

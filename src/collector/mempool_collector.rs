@@ -4,7 +4,6 @@ use crate::types::{Collector, CollectorStream};
 use alloy::transports::{RpcError, TransportErrorKind};
 use alloy::{primitives::B256, providers::Provider, rpc::types::eth::Transaction};
 use async_trait::async_trait;
-use eyre::WrapErr;
 use futures::prelude::{stream::FuturesUnordered, Stream};
 use futures::{FutureExt, StreamExt};
 use std::future::Future;
@@ -13,7 +12,6 @@ use std::{
     pin::Pin,
     task::{Context, Poll},
 };
-use tracing::error;
 
 pub struct MempoolCollector {
     provider: Arc<dyn Provider>,
@@ -31,12 +29,12 @@ impl Collector<Transaction> for MempoolCollector {
         "MempoolCollector"
     }
 
-    async fn get_event_stream(&self) -> eyre::Result<CollectorStream<'_, Transaction>> {
+    async fn get_event_stream(&self) -> anyhow::Result<CollectorStream<'_, Transaction>> {
         let stream = self
             .provider
             .subscribe_pending_transactions()
             .await
-            .wrap_err("fail to subscribe to pending transaction stream")?
+            .map_err(|e| anyhow::anyhow!("fail to subscribe to pending transaction stream: {e}"))?
             .into_stream();
 
         let stream = TransactionStream::new(self.provider.as_ref(), stream, 256);

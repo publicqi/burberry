@@ -21,7 +21,7 @@ impl Collector<Header> for BlockCollector {
         "BlockCollector"
     }
 
-    async fn get_event_stream(&self) -> eyre::Result<CollectorStream<'_, Header>> {
+    async fn get_event_stream(&self) -> anyhow::Result<CollectorStream<'_, Header>> {
         let stream = self.provider.subscribe_blocks().await?;
 
         Ok(Box::pin(stream.into_stream()))

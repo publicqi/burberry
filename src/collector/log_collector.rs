@@ -26,7 +26,7 @@ impl Collector<Log> for LogCollector {
         "LogCollector"
     }
 
-    async fn get_event_stream(&self) -> eyre::Result<CollectorStream<'_, Log>> {
+    async fn get_event_stream(&self) -> anyhow::Result<CollectorStream<'_, Log>> {
         let stream = self.provider.subscribe_logs(&self.filter).await?;
         let stream = stream.into_stream().filter_map(|v| async move { Some(v) });
         Ok(Box::pin(stream))

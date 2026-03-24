@@ -31,7 +31,7 @@ impl Collector<Block> for PollFullBlockCollector {
         "PollFullBlockCollector"
     }
 
-    async fn get_event_stream(&self) -> eyre::Result<CollectorStream<'_, Block>> {
+    async fn get_event_stream(&self) -> anyhow::Result<CollectorStream<'_, Block>> {
         let stream = async_stream::stream! {
             loop {
                 match self.provider.get_block(BlockId::latest()).full().await {

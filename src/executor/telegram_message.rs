@@ -205,7 +205,7 @@ impl TelegramMessageDispatcher {
         }
     }
 
-    async fn handle_response(&self, response: reqwest::Result<Response>) -> eyre::Result<()> {
+    async fn handle_response(&self, response: reqwest::Result<Response>) -> anyhow::Result<()> {
         let response = match response {
             Ok(response) if response.status() != StatusCode::OK => {
                 let status = response.status();
@@ -214,11 +214,11 @@ impl TelegramMessageDispatcher {
                     .await
                     .unwrap_or("fail to read body".to_string());
 
-                eyre::bail!("response status: {status}, body: {body}");
+                anyhow::bail!("response status: {status}, body: {body}");
             }
             Ok(response) => response,
             Err(err) => {
-                eyre::bail!("failed to send message: {err:#}");
+                anyhow::bail!("failed to send message: {err:#}");
             }
         };
 
@@ -227,7 +227,7 @@ impl TelegramMessageDispatcher {
                 tracing::debug!("response: {value}");
             }
             Err(err) => {
-                eyre::bail!("failed to parse response: {err:#}");
+                anyhow::bail!("failed to parse response: {err:#}");
             }
         };
 
@@ -247,7 +247,7 @@ impl Executor<Message> for TelegramMessageDispatcher {
         "TelegramMessageDispatcher"
     }
 
-    async fn execute(&self, action: Message) -> eyre::Result<()> {
+    async fn execute(&self, action: Message) -> anyhow::Result<()> {
         tracing::debug!("received message: {action:?}");
 
         self.send_message(action).await;
