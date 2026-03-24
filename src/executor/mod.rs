@@ -1,10 +1,7 @@
 pub mod dummy;
 
 #[cfg(feature = "ethereum")]
-pub mod raw_transaction;
+pub mod ethereum;
 
 #[cfg(feature = "telegram")]
 pub mod telegram_message;
-
-#[cfg(feature = "ethereum")]
-pub mod transaction;

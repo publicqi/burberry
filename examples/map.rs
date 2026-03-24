@@ -7,10 +7,10 @@ use alloy::providers::ProviderBuilder;
 use alloy::providers::{Provider, WsConnect};
 use alloy::rpc::types::eth::Transaction;
 use alloy::rpc::types::Header;
-use burberry::collector::BlockCollector;
+use burberry::collector::ethereum::BlockCollector;
 use burberry::{
-    collector::MempoolCollector, map_collector, map_executor, submit_action, ActionSubmitter,
-    Engine, Executor, Strategy,
+    collector::ethereum::MempoolCollector, map_collector, map_executor, submit_action,
+    ActionSubmitter, Engine, Executor, Strategy,
 };
 
 #[tokio::main]

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use alloy::providers::ProviderBuilder;
 use alloy::providers::WsConnect;
-use burberry::{collector::MempoolCollector, Collector};
+use burberry::{collector::ethereum::MempoolCollector, Collector};
 use futures::StreamExt;
 
 #[tokio::main]
