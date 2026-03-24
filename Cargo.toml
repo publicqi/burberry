@@ -20,6 +20,3 @@ tracing = { version = "0.1", features = ["log"] }
 default = ["telegram"]
 ethereum = ["dep:alloy", "dep:thiserror"]
 telegram = ["dep:reqwest", "dep:serde_json"]
-
-[dev-dependencies]
-tokio = { version = "1", features = ["full"] }
