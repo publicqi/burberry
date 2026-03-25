@@ -117,7 +117,7 @@ impl TelegramMessageDispatcher {
         format!("https://api.telegram.org/bot{}/sendMessage", bot_token)
     }
 
-    pub async fn send_message(&self, message: Message) {
+    pub async fn send_message(&self, message: &Message) {
         let url = Self::get_url(&message.bot_token);
 
         let mut data = Map::new();
@@ -159,11 +159,11 @@ impl TelegramMessageDispatcher {
         if let Err(err) = self.handle_response(response).await {
             tracing::error!("fail to send message to telegram: {err:#}");
 
-            self.report_error(message, format!("{err:#}")).await;
+            self.report_error(message, &format!("{err:#}")).await;
         }
     }
 
-    pub async fn report_error(&self, original_message: Message, error_message: String) {
+    pub async fn report_error(&self, original_message: &Message, error_message: &str) {
         let error_report_bot_token = match &self.error_report_bot_token {
             Some(token) => token,
             None => {
@@ -192,7 +192,7 @@ impl TelegramMessageDispatcher {
             "text".to_string(),
             json!(format!(
                 "❌ Fail to send message\n\nOriginal message: {}\nError: {error_message}",
-                json!(original_message.text)
+                json!(&original_message.text)
             )),
         );
 
@@ -247,7 +247,7 @@ impl Executor<Message> for TelegramMessageDispatcher {
     async fn execute(&self, action: &Message) -> anyhow::Result<()> {
         tracing::debug!("received message: {action:?}");
 
-        self.send_message(action.clone()).await;
+        self.send_message(action).await;
 
         Ok(())
     }
@@ -255,13 +255,12 @@ impl Executor<Message> for TelegramMessageDispatcher {
 
 pub fn escape(raw: &str) -> String {
     let escaped_characters = r"\*_[]~`>#-|{}.!+()=";
-    raw.chars()
-        .map(|c| {
-            if escaped_characters.contains(c) {
-                format!("\\{c}")
-            } else {
-                c.to_string()
-            }
-        })
-        .collect()
+    let mut result = String::with_capacity(raw.len());
+    for c in raw.chars() {
+        if escaped_characters.contains(c) {
+            result.push('\\');
+        }
+        result.push(c);
+    }
+    result
 }

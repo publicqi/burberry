@@ -55,5 +55,5 @@ impl ActionSubmitter<Message> for TelegramSubmitter {
 
 #[tokio::main(flavor = "current_thread")]
 async fn send_message(executor: Arc<TelegramMessageDispatcher>, action: Message) {
-    executor.send_message(action).await;
+    executor.send_message(&action).await;
 }
