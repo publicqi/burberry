@@ -1,11 +1,11 @@
-use std::fmt::Debug;
+use std::marker::PhantomData;
 
 use crate::ActionSubmitter;
 
 pub struct ActionSubmitterMap<A1, A2, F> {
     submitter: Box<dyn ActionSubmitter<A2>>,
     f: F,
-    _phantom: std::marker::PhantomData<A1>,
+    _phantom: PhantomData<A1>,
 }
 
 impl<A1, A2, F> ActionSubmitterMap<A1, A2, F> {
@@ -13,23 +13,20 @@ impl<A1, A2, F> ActionSubmitterMap<A1, A2, F> {
         Self {
             submitter,
             f,
-            _phantom: std::marker::PhantomData,
+            _phantom: PhantomData,
         }
     }
 }
 
 impl<A1, A2, F> ActionSubmitter<A1> for ActionSubmitterMap<A1, A2, F>
 where
-    A1: Send + Sync + Clone + Debug + 'static,
-    A2: Send + Sync + Clone + Debug + 'static,
-    F: Fn(A1) -> Option<A2> + Send + Sync + Clone + 'static,
+    A1: Send + Sync + 'static,
+    A2: Send + Sync + 'static,
+    F: Fn(A1) -> Option<A2> + Send + Sync + 'static,
 {
     fn submit(&self, a: A1) {
-        let a = match (self.f)(a) {
-            Some(a) => a,
-            None => return,
-        };
-
-        self.submitter.submit(a);
+        if let Some(a) = (self.f)(a) {
+            self.submitter.submit(a);
+        }
     }
 }

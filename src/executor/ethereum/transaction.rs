@@ -1,12 +1,11 @@
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
-use alloy::signers::local::PrivateKeySigner;
 use alloy::{
     network::{eip2718::Encodable2718, EthereumWallet, TransactionBuilder},
     primitives::{keccak256, Address, Bytes},
     providers::{Provider, RootProvider},
     rpc::types::eth::TransactionRequest,
+    signers::local::PrivateKeySigner,
 };
 
 use crate::types::Executor;
@@ -34,9 +33,7 @@ impl TransactionSender {
             tx_submission_provider: None,
         }
     }
-}
 
-impl TransactionSender {
     pub fn new_with_dedicated_tx_submission_endpoint(
         provider: Arc<dyn Provider>,
         tx_submission_provider: Arc<dyn Provider>,
@@ -106,8 +103,8 @@ impl Executor<TransactionRequest> for TransactionSender {
         "TransactionSender"
     }
 
-    async fn execute(&self, action: TransactionRequest) -> anyhow::Result<()> {
-        let mut action = action;
+    async fn execute(&self, action: &TransactionRequest) -> anyhow::Result<()> {
+        let mut action = action.clone();
 
         let account = match action.from {
             Some(v) => v,

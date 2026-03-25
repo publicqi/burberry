@@ -1,11 +1,11 @@
-use alloy::providers::ProviderBuilder;
+use std::sync::Arc;
+
 use alloy::{
     primitives::{keccak256, Bytes},
-    providers::Provider,
+    providers::{Provider, ProviderBuilder},
 };
 use anyhow::Result;
 use async_trait::async_trait;
-use std::sync::Arc;
 
 use crate::types::Executor;
 
@@ -17,9 +17,7 @@ impl RawTransactionSender {
     pub fn new(provider: Arc<dyn Provider>) -> Self {
         Self { provider }
     }
-}
 
-impl RawTransactionSender {
     pub fn new_http(url: &str) -> Self {
         let provider = ProviderBuilder::default().connect_http(url.parse().unwrap());
         let provider = Arc::new(provider);
@@ -53,15 +51,15 @@ impl Executor<Bytes> for RawTransactionSender {
         "RawTransactionSender"
     }
 
-    async fn execute(&self, action: Bytes) -> Result<()> {
-        let send_result = self.provider.send_raw_transaction(&action).await;
+    async fn execute(&self, action: &Bytes) -> Result<()> {
+        let send_result = self.provider.send_raw_transaction(action).await;
 
         match send_result {
             Ok(tx) => {
                 tracing::info!(tx = ?tx.tx_hash(), "sent tx");
             }
             Err(err) => {
-                let tx_hash = keccak256(&action);
+                let tx_hash = keccak256(action);
                 tracing::error!(tx = ?tx_hash, "failed to send tx: {:#}", err);
             }
         }

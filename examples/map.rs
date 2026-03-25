@@ -1,16 +1,13 @@
-use std::fmt::Debug;
-use std::marker::PhantomData;
-use std::sync::Arc;
+use std::{fmt::Debug, marker::PhantomData, sync::Arc};
 
-use alloy::primitives::B256;
-use alloy::providers::ProviderBuilder;
-use alloy::providers::{Provider, WsConnect};
-use alloy::rpc::types::eth::Transaction;
-use alloy::rpc::types::Header;
-use burberry::collector::ethereum::BlockCollector;
+use alloy::{
+    primitives::B256,
+    providers::{Provider, ProviderBuilder, WsConnect},
+    rpc::types::{eth::Transaction, Header},
+};
 use burberry::{
-    collector::ethereum::MempoolCollector, map_collector, map_executor, submit_action,
-    ActionSubmitter, Engine, Executor, Strategy,
+    collector::ethereum::{BlockCollector, MempoolCollector},
+    dispatch, map_collector, submit_action, ActionSubmitter, Engine, Executor, Strategy,
 };
 
 #[tokio::main]
@@ -23,21 +20,18 @@ async fn main() {
 
     let provider: Arc<dyn Provider<_>> = Arc::new(provider);
 
-    let mut engine = Engine::new();
-
     let mempool_collector = MempoolCollector::new(Arc::clone(&provider));
     let block_collector = BlockCollector::new(Arc::clone(&provider));
+
+    let mut engine = Engine::new(dispatch!(
+        EchoExecutor::<u64>::default()  => [u64],
+        EchoExecutor::<B256>::default() => [B256],
+    ));
 
     engine.add_collector(map_collector!(mempool_collector, Event::Transaction));
     engine.add_collector(map_collector!(block_collector, Event::Block));
 
     engine.add_strategy(Box::new(EchoStrategy));
-
-    engine.add_executor(map_executor!(EchoExecutor::default(), Action::EchoBlock));
-    engine.add_executor(map_executor!(
-        EchoExecutor::default(),
-        Action::EchoTransaction
-    ));
 
     engine.run_and_join().await.unwrap()
 }
@@ -62,9 +56,9 @@ impl Strategy<Event, Action> for EchoStrategy {
 pub struct EchoExecutor<T>(PhantomData<T>);
 
 #[async_trait::async_trait]
-impl<T: Debug + Send + Sync> Executor<T> for EchoExecutor<T> {
-    async fn execute(&self, action: T) -> anyhow::Result<()> {
-        println!("action: {:?}", action);
+impl<T: Debug + Send + Sync + 'static> Executor<T> for EchoExecutor<T> {
+    async fn execute(&self, action: &T) -> anyhow::Result<()> {
+        println!("action: {action:?}");
         Ok(())
     }
 }
@@ -75,8 +69,10 @@ enum Event {
     Transaction(Transaction),
 }
 
-#[derive(Debug, Clone)]
-enum Action {
-    EchoBlock(u64),
-    EchoTransaction(B256),
+burberry::action! {
+    #[derive(Debug)]
+    pub enum Action {
+        EchoBlock(u64),
+        EchoTransaction(B256),
+    }
 }

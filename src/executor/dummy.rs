@@ -8,9 +8,7 @@ impl<A: Send + Sync + 'static> Executor<A> for Dummy {
         "Dummy"
     }
 
-    async fn execute(&self, action: A) -> anyhow::Result<()> {
-        let _ = action;
-
+    async fn execute(&self, _action: &A) -> anyhow::Result<()> {
         Ok(())
     }
 }

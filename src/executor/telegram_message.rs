@@ -126,10 +126,7 @@ impl TelegramMessageDispatcher {
         data.insert("text".to_string(), json!(&message.text));
         data.insert(
             "parse_mode".to_string(),
-            json!(&message
-                .parse_mode
-                .clone()
-                .unwrap_or("MarkdownV2".to_string())),
+            json!(message.parse_mode.as_deref().unwrap_or("MarkdownV2")),
         );
 
         if let Some(thread_id) = &message.thread_id {
@@ -247,10 +244,10 @@ impl Executor<Message> for TelegramMessageDispatcher {
         "TelegramMessageDispatcher"
     }
 
-    async fn execute(&self, action: Message) -> anyhow::Result<()> {
+    async fn execute(&self, action: &Message) -> anyhow::Result<()> {
         tracing::debug!("received message: {action:?}");
 
-        self.send_message(action).await;
+        self.send_message(action.clone()).await;
 
         Ok(())
     }
@@ -258,16 +255,13 @@ impl Executor<Message> for TelegramMessageDispatcher {
 
 pub fn escape(raw: &str) -> String {
     let escaped_characters = r"\*_[]~`>#-|{}.!+()=";
-    let escaped_string: String = raw
-        .chars()
+    raw.chars()
         .map(|c| {
             if escaped_characters.contains(c) {
-                format!("\\{}", c)
+                format!("\\{c}")
             } else {
                 c.to_string()
             }
         })
-        .collect();
-
-    escaped_string
+        .collect()
 }
